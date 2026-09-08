@@ -1,16 +1,23 @@
-# Compiled class file
+# Идея и личные настройки
+.idea/
+*.iml
+out/
+build/
+
+# Папки сборки (Maven/Gradle)
+target/
+
+# Скомпилированные файлы
 *.class
 
-# Log file
+# Логи
 *.log
+logs/
 
-# BlueJ files
-*.ctxt
+# Файлы ОС
+.DS_Store
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
+# Прочие файлы
 *.jar
 *.war
 *.nar
@@ -18,7 +25,5 @@
 *.zip
 *.tar.gz
 *.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
