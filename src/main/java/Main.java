@@ -1,3 +1,6 @@
+import visitor.ConventionVisitor;
+import visitor.TicketType;
+
 public class Main {
     public static void main(String[] args) {
         try {

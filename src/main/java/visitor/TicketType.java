@@ -1,3 +1,5 @@
+package visitor;
+
 public enum TicketType {
     VIP(1, "VIP"),
     OPEN_DATE(2, "Билет с открытой датой"),

@@ -1,3 +1,5 @@
+package visitor;
+
 import java.util.Objects;
 
 public class ConventionVisitor {
