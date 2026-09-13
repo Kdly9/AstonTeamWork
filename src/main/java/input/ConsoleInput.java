@@ -11,13 +11,21 @@ public class ConsoleInput implements InputStrategy {
 
     private final Scanner scanner = new Scanner(System.in);
 
-    @Override
-    public CustomCollection<ConventionVisitor> fill(int count) {
+    private final int count;
+
+    public ConsoleInput(int count) {
+
         if (count < 0) {
             throw new IllegalArgumentException(
                     "Количество не может быть отрицательным"
             );
         }
+
+        this.count = count;
+    }
+
+    @Override
+    public CustomCollection<ConventionVisitor> fill() {
 
         CustomCollection<ConventionVisitor> data = new CustomCollection<>();
 

@@ -9,6 +9,8 @@ import java.util.stream.IntStream;
 
 public class RandomInput implements InputStrategy {
 
+    private final int count;
+
     private final Random random = new Random();
 
     private static final String[] NAMES = {
@@ -27,19 +29,26 @@ public class RandomInput implements InputStrategy {
             "Ведьмак"
     };
 
-    @Override
-    public CustomCollection<ConventionVisitor> fill(int count) {
+    public RandomInput(int count) {
 
         if (count < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(
+                    "Количество не может быть отрицательным"
+            );
         }
+
+        this.count = count;
+    }
+
+    @Override
+    public CustomCollection<ConventionVisitor> fill() {
 
         CustomCollection<ConventionVisitor> data = new CustomCollection<>();
 
         TicketType[] ticketTypes = TicketType.values();
 
         IntStream.range(0, count)
-                .mapToObj(obj -> new ConventionVisitor.Builder()
+                .mapToObj(i -> new ConventionVisitor.Builder()
                         .setName(NAMES[random.nextInt(NAMES.length)])
                         .setCosplayCharacter(CHARACTERS[random.nextInt(CHARACTERS.length)])
                         .setTicketType(ticketTypes[random.nextInt(ticketTypes.length)])
