@@ -24,29 +24,26 @@ public class InputStrategyManualTest {
         CustomCollection<ConventionVisitor> visitors;
 
         switch (choice) {
-            case 1 -> {
-                strategy = new RandomInput();
 
+            case 1 -> {
                 System.out.print("Введите количество объектов: ");
                 int count = Integer.parseInt(scanner.nextLine());
 
-                visitors = strategy.fill(count);
+                strategy = new RandomInput(count);
+                visitors = strategy.fill();
             }
 
             case 2 -> {
-                strategy = new ConsoleInput();
-
                 System.out.print("Введите количество объектов: ");
                 int count = Integer.parseInt(scanner.nextLine());
 
-                visitors = strategy.fill(count);
+                strategy = new ConsoleInput(count);
+                visitors = strategy.fill();
             }
 
             case 3 -> {
                 System.out.print("Введите путь к файлу: ");
                 Path path = Path.of(scanner.nextLine());
-
-                FileInput fileInput = new FileInput(path);
 
                 System.out.println("Выберите режим чтения:");
                 System.out.println("1. Весь файл");
@@ -56,13 +53,17 @@ public class InputStrategyManualTest {
                 int fileChoice = Integer.parseInt(scanner.nextLine());
 
                 if (fileChoice == 1) {
-                    visitors = fileInput.fill();
+
+                    strategy = new FileInput(path);
+                    visitors = strategy.fill();
 
                 } else if (fileChoice == 2) {
+
                     System.out.print("Введите количество объектов: ");
                     int count = Integer.parseInt(scanner.nextLine());
 
-                    visitors = fileInput.fill(count);
+                    strategy = new FileInput(path, count);
+                    visitors = strategy.fill();
 
                 } else {
                     System.out.println("Неверный выбор.");

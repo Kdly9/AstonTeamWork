@@ -13,36 +13,49 @@ public class FileInput implements InputStrategy {
 
     private final Path path;
 
-    public FileInput(Path path) {
+    private final int count;
+
+    public FileInput(Path path, int count) {
+
+        if (count < 0) {
+            throw new IllegalArgumentException(
+                    "Количество не может быть отрицательным"
+            );
+        }
+
+        if (path == null) {
+            throw new IllegalArgumentException(
+                    "Путь не должен быть null"
+            );
+        }
+
         this.path = path;
+        this.count = count;
+    }
+
+    public FileInput(Path path) {
+
+        if (path == null) {
+            throw new IllegalArgumentException(
+                    "Путь не должен быть null"
+            );
+        }
+
+        this.path = path;
+        this.count = -1;
     }
 
     @Override
-    public CustomCollection<ConventionVisitor> fill(int count) {
-        if (count < 0) {
-            throw new IllegalArgumentException("Количество не может быть отрицательным");
-        }
-
-        CustomCollection<ConventionVisitor> data = new CustomCollection<>();
-
-        try (Stream<String> lines = Files.lines(path)) {
-
-            lines.limit(count).map(this::parseVisitor).forEach(data::add);
-
-        } catch (IOException e) {
-            throw new IllegalStateException("Не удалось прочитать файл: " + path, e);
-        }
-
-        return data;
-    }
-
     public CustomCollection<ConventionVisitor> fill() {
 
         CustomCollection<ConventionVisitor> data = new CustomCollection<>();
 
         try (Stream<String> lines = Files.lines(path)) {
-
-            lines.map(this::parseVisitor).forEach(data::add);
+            if (count >= 0) {
+                lines.limit(count).map(this::parseVisitor).forEach(data::add);
+            } else {
+                lines.map(this::parseVisitor).forEach(data::add);
+            }
 
         } catch (IOException e) {
             throw new IllegalStateException("Не удалось прочитать файл: " + path, e);
@@ -50,6 +63,7 @@ public class FileInput implements InputStrategy {
 
         return data;
     }
+
 
     private ConventionVisitor parseVisitor(String line) {
         String[] parts = line.split(";", -1);
