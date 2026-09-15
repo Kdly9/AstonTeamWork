@@ -30,8 +30,30 @@ public class ConventionVisitor {
     public String toString() {
         return "Билет " +
                 "на имя '" + name + '\'' +
-                ", тип билета '" + ticketType + '\'' +
+                ", тип билета '" + ticketType + ", " + ticketType.getPriority() + '\'' +
                 ", персонаж '" + cosplayCharacter + '\'';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ConventionVisitor visitor = (ConventionVisitor) o;
+
+        return Objects.equals(name, visitor.name)
+                && ticketType == visitor.ticketType
+                && Objects.equals(cosplayCharacter, visitor.cosplayCharacter);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, ticketType, cosplayCharacter);
     }
 
     public static class Builder {
