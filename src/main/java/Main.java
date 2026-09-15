@@ -6,9 +6,9 @@ import input.RandomInput;
 import output.FileWriter;
 import visitor.ConventionVisitor;
 import visitor.TicketType;
+import visitor.VisitorComparators;
 
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.Scanner;
 
 public class Main {
@@ -29,9 +29,17 @@ public class Main {
             switch (choice) {
                 case 1 -> loadData();
                 case 2 -> displayAll();
-                case 3 -> displaySortedByTicketPriority();
-                case 4 -> displayFilteredByTicketType();
-                case 5 -> saveData();
+                case 3 -> displaySortedBy(VisitorComparators.VisitorComparator.NAME_SORT,
+                                          "Сортировка по имени");
+                case 4 -> displaySortedBy(VisitorComparators.VisitorComparator.TICKET_TYPE_SORT,
+                                          "Сортировка по типу билета");
+                case 5 -> displaySortedBy(VisitorComparators.VisitorComparator.COSPLAY_CHARACTER_SORT,
+                                          "Сортировка по персонажу");
+                case 6 -> displaySortedBy(VisitorComparators.VisitorComparator.ALL_FIELDS_SORT,
+                                          "Сортировка по всем полям");
+                case 7 -> displayEvenOddSortedByPriority();
+                case 8 -> displayFilteredByTicketType();
+                case 9 -> saveData();
                 case 0 -> {
                     running = false;
                     System.out.println("Выход. До встречи!");
@@ -49,9 +57,13 @@ public class Main {
         System.out.println("--- Главное меню ---");
         System.out.println("1. Загрузить данные");
         System.out.println("2. Показать всех посетителей");
-        System.out.println("3. Показать отсортированных по приоритету билета");
-        System.out.println("4. Фильтр по типу билета");
-        System.out.println("5. Сохранить данные в файл");
+        System.out.println("3. Сортировка по имени");
+        System.out.println("4. Сортировка по типу билета");
+        System.out.println("5. Сортировка по персонажу");
+        System.out.println("6. Сортировка по всем полям");
+        System.out.println("7. Чётно-нечётная сортировка по приоритету");
+        System.out.println("8. Фильтр по типу билета");
+        System.out.println("9. Сохранить данные в файл");
         System.out.println("0. Выход");
     }
 
@@ -94,41 +106,46 @@ public class Main {
         System.out.println("2. Прочитать определённое количество");
         int mode = readInt("Ваш выбор: ");
 
-        return mode == 1 ? new FileInput(filePath) : new FileInput(filePath, readNonNegativeCount());
+        return mode == 1 ? new FileInput(filePath)
+                         : new FileInput(filePath, readNonNegativeCount());
     }
 
-    // Вывод
+    // Вывод с сортировкой
 
     private static void displayAll() {
-        if (visitors.isEmpty()) {
-            System.out.println("Список пуст. Сначала загрузите данные.");
-            return;
-        }
-
+        if (checkEmpty()) return;
         System.out.println("\n--- Все посетители ---");
-        int index = 1;
-        for (ConventionVisitor visitor : visitors) {
-            System.out.printf("%d. %s%n", index++, visitor);
-        }
+        printVisitors();
     }
 
-    private static void displaySortedByTicketPriority() {
-        if (visitors.isEmpty()) {
-            System.out.println("Список пуст. Сначала загрузите данные.");
-            return;
-        }
+    private static void displaySortedBy(
+            VisitorComparators.VisitorComparator comparator,
+            String title
+    ) {
+        if (checkEmpty()) return;
 
-        System.out.println("\n--- Посетители (сортировка по приоритету билета) ---");
-        visitors.stream()
-                .sorted(Comparator.comparingInt(v -> v.getTicketType().getPriority()))
-                .forEach(System.out::println);
+        visitors.sort(comparator);
+
+        System.out.println("\n--- " + title + " ---");
+        printVisitors();
     }
+
+    private static void displayEvenOddSortedByPriority() {
+        if (checkEmpty()) return;
+
+        System.out.println("\n--- До чётно-нечётной сортировки ---");
+        printVisitorsWithPriority();
+
+        VisitorComparators.sortTicketPriorityNewOrder(visitors);
+
+        System.out.println("\n--- После чётно-нечётной сортировки ---");
+        printVisitorsWithPriority();
+    }
+
+    // Фильтр
 
     private static void displayFilteredByTicketType() {
-        if (visitors.isEmpty()) {
-            System.out.println("Список пуст. Сначала загрузите данные.");
-            return;
-        }
+        if (checkEmpty()) return;
 
         System.out.println("\n--- Фильтр по типу билета ---");
         TicketType[] types = TicketType.values();
@@ -145,15 +162,15 @@ public class Main {
         TicketType selected = types[choice - 1];
         System.out.println("\nПосетители с билетом '" + selected.getDisplayName() + "':");
 
-        boolean[] found = {false};
-        visitors.stream()
-                .filter(v -> v.getTicketType() == selected)
-                .forEach(v -> {
-                    System.out.println(v);
-                    found[0] = true;
-                });
+        boolean found = false;
+        for (ConventionVisitor visitor : visitors) {
+            if (visitor.getTicketType() == selected) {
+                System.out.println(visitor);
+                found = true;
+            }
+        }
 
-        if (!found[0]) {
+        if (!found) {
             System.out.println("Нет посетителей с таким типом билета.");
         }
     }
@@ -161,10 +178,7 @@ public class Main {
     // Сохранение
 
     private static void saveData() {
-        if (visitors.isEmpty()) {
-            System.out.println("Нечего сохранять. Сначала загрузите данные.");
-            return;
-        }
+        if (checkEmpty()) return;
 
         System.out.print("Путь для сохранения (Enter — " + DEFAULT_FILE + "): ");
         String path = SCANNER.nextLine().trim();
@@ -175,6 +189,29 @@ public class Main {
             System.out.println("Данные сохранены в " + filePath);
         } catch (IllegalStateException e) {
             System.out.println("Ошибка сохранения: " + e.getMessage());
+        }
+    }
+
+    // Утилиты вывода
+
+    private static boolean checkEmpty() {
+        if (visitors.isEmpty()) {
+            System.out.println("Список пуст. Сначала загрузите данные.");
+            return true;
+        }
+        return false;
+    }
+
+    private static void printVisitors() {
+        for (ConventionVisitor visitor : visitors) {
+            System.out.println(visitor);
+        }
+    }
+
+    private static void printVisitorsWithPriority() {
+        for (ConventionVisitor visitor : visitors) {
+            System.out.println(visitor + " | priority = "
+                    + visitor.getTicketType().getPriority());
         }
     }
 
