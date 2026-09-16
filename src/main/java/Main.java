@@ -162,29 +162,32 @@ public class Main {
     // Многопоточный подсчёт
 
     private static void countOccurrences() {
-        if (checkEmpty()) return;
+    if (checkEmpty()) return;
 
-        System.out.println("\n--- Подсчёт вхождений элемента ---");
-        System.out.println("Текущая коллекция:");
-        printVisitors();
+    System.out.println("\n--- Подсчёт вхождений элемента ---");
 
-        int index = readInt("Введите индекс элемента для подсчёта: ");
+    // Показываем коллекцию, чтобы пользователь понимал, что можно ввести
+    System.out.println("Текущая коллекция:");
+    printVisitors();
 
-        if (index < 0 || index >= visitors.size()) {
-            System.out.println("Неверный индекс.");
-            return;
-        }
+    System.out.println("\nСоздайте посетителя, вхождения которого нужно подсчитать:");
+    ConventionVisitor target = readVisitorManually();
 
-        ConventionVisitor target = visitors.get(index);
+    System.out.println("\nИскомый посетитель: " + target);
 
-        int threadCount = readInt("Введите количество потоков: ");
-        if (threadCount <= 0) {
-            System.out.println("Количество потоков должно быть больше нуля.");
-            return;
-        }
-
-        ConcurrentCounter.count(visitors, target, threadCount);
+    int threadCount = readInt("Введите количество потоков: ");
+    if (threadCount <= 0) {
+        System.out.println("Количество потоков должно быть больше нуля.");
+        return;
     }
+
+    ConcurrentCounter.count(visitors, target, threadCount);
+}
+
+private static ConventionVisitor readVisitorManually() {
+    ConsoleInput input = new ConsoleInput(1);
+    return input.fill().get(0);
+}
 
     // Утилиты вывода
 
