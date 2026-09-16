@@ -1,11 +1,11 @@
 import collection.CustomCollection;
+import concurrent.ConcurrentCounter;
 import input.ConsoleInput;
 import input.FileInput;
 import input.InputStrategy;
 import input.RandomInput;
 import output.FileWriter;
 import visitor.ConventionVisitor;
-import visitor.TicketType;
 import visitor.VisitorComparators;
 
 import java.nio.file.Path;
@@ -38,8 +38,8 @@ public class Main {
                 case 6 -> displaySortedBy(VisitorComparators.VisitorComparator.ALL_FIELDS_SORT,
                                           "Сортировка по всем полям");
                 case 7 -> displayEvenOddSortedByPriority();
-                case 8 -> displayFilteredByTicketType();
-                case 9 -> saveData();
+                case 8 -> saveData();
+                case 9 -> countOccurrences();
                 case 0 -> {
                     running = false;
                     System.out.println("Выход. До встречи!");
@@ -62,8 +62,8 @@ public class Main {
         System.out.println("5. Сортировка по персонажу");
         System.out.println("6. Сортировка по всем полям");
         System.out.println("7. Чётно-нечётная сортировка по приоритету");
-        System.out.println("8. Фильтр по типу билета");
-        System.out.println("9. Сохранить данные в файл");
+        System.out.println("8. Сохранить данные в файл");
+        System.out.println("9. Подсчёт вхождений элемента (многопоточный)");
         System.out.println("0. Выход");
     }
 
@@ -142,39 +142,6 @@ public class Main {
         printVisitorsWithPriority();
     }
 
-    // Фильтр
-
-    private static void displayFilteredByTicketType() {
-        if (checkEmpty()) return;
-
-        System.out.println("\n--- Фильтр по типу билета ---");
-        TicketType[] types = TicketType.values();
-        for (int i = 0; i < types.length; i++) {
-            System.out.printf("%d. %s%n", i + 1, types[i].getDisplayName());
-        }
-
-        int choice = readInt("Ваш выбор: ");
-        if (choice < 1 || choice > types.length) {
-            System.out.println("Неверный выбор.");
-            return;
-        }
-
-        TicketType selected = types[choice - 1];
-        System.out.println("\nПосетители с билетом '" + selected.getDisplayName() + "':");
-
-        boolean found = false;
-        for (ConventionVisitor visitor : visitors) {
-            if (visitor.getTicketType() == selected) {
-                System.out.println(visitor);
-                found = true;
-            }
-        }
-
-        if (!found) {
-            System.out.println("Нет посетителей с таким типом билета.");
-        }
-    }
-
     // Сохранение
 
     private static void saveData() {
@@ -192,6 +159,33 @@ public class Main {
         }
     }
 
+    // Многопоточный подсчёт
+
+    private static void countOccurrences() {
+        if (checkEmpty()) return;
+
+        System.out.println("\n--- Подсчёт вхождений элемента ---");
+        System.out.println("Текущая коллекция:");
+        printVisitors();
+
+        int index = readInt("Введите индекс элемента для подсчёта: ");
+
+        if (index < 0 || index >= visitors.size()) {
+            System.out.println("Неверный индекс.");
+            return;
+        }
+
+        ConventionVisitor target = visitors.get(index);
+
+        int threadCount = readInt("Введите количество потоков: ");
+        if (threadCount <= 0) {
+            System.out.println("Количество потоков должно быть больше нуля.");
+            return;
+        }
+
+        ConcurrentCounter.count(visitors, target, threadCount);
+    }
+
     // Утилиты вывода
 
     private static boolean checkEmpty() {
@@ -203,8 +197,8 @@ public class Main {
     }
 
     private static void printVisitors() {
-        for (ConventionVisitor visitor : visitors) {
-            System.out.println(visitor);
+        for (int i = 0; i < visitors.size(); i++) {
+            System.out.printf("%d. %s%n", i, visitors.get(i));
         }
     }
 
