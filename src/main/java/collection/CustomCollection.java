@@ -1,5 +1,7 @@
 package collection;
 
+import sort.QuickSort;
+
 import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -65,10 +67,8 @@ public class CustomCollection<T> implements Iterable<T> {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public void sort(Comparator<? super T> comparator) {
-        Objects.requireNonNull(comparator, "comparator is Null");
-        Arrays.sort(array, 0, size, (first, second) -> comparator.compare((T) first, (T) second));
+        QuickSort.sort(this, comparator);
     }
 
     @Override
