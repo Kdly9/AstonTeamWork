@@ -84,10 +84,6 @@ public class FileInput implements InputStrategy {
             throw new IllegalArgumentException("Неизвестный тип билета: " + ticketTypeName);
         }
 
-        if (cosplayCharacter.isBlank()) {
-            throw new IllegalArgumentException("Персонаж не должен быть пустым");
-        }
-
         return new ConventionVisitor.Builder()
                 .setName(name)
                 .setTicketType(ticketType)

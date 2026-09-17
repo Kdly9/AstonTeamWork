@@ -89,15 +89,7 @@ public class ConsoleInput implements InputStrategy {
     }
 
     private String readCosplayCharacter() {
-        String character;
-        while (true) {
-            System.out.print("Введите персонажа: ");
-            character = scanner.nextLine();
-            if (character.isBlank()) {
-                System.out.println("Персонаж не должен быть пустым");
-            } else {
-                return character;
-            }
-        }
+        System.out.print("Введите персонажа: ");
+        return scanner.nextLine();
     }
 }

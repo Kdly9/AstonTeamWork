@@ -113,7 +113,7 @@ class FileInputTest {
     }
 
     @Test
-    void shouldThrowOnEmptyCharacter() throws Exception {
+    void shouldAllowEmptyCharacter() throws Exception {
         Path path = Files.createTempFile("visitors", ".txt");
 
         Files.writeString(
@@ -123,10 +123,10 @@ class FileInputTest {
 
         FileInput input = new FileInput(path);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                input::fill
-        );
+        CustomCollection<ConventionVisitor> result = input.fill();
+
+        assertEquals(1, result.size());
+        assertEquals("", result.get(0).getCosplayCharacter());
 
         Files.deleteIfExists(path);
     }
