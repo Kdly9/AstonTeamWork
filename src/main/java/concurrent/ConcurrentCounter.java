@@ -13,11 +13,14 @@ public final class ConcurrentCounter {
         throw new AssertionError("error instance");
     }
 
-    public static <T> void count(
+    public static <T> int count(
             CustomCollection<T> collection,
             T element,
             int threadCount
     ) {
+        Objects.requireNonNull(collection, "Коллекция не должна быть null");
+        Objects.requireNonNull(element, "Элемент не должен быть null");
+
         if (threadCount <= 0) {
             throw new IllegalArgumentException("Количество потоков должно быть больше нуля");
         }
@@ -51,5 +54,7 @@ public final class ConcurrentCounter {
 
         System.out.println("Количество вхождений элемента " + element
                 + ": " + count.get());
+
+        return count.get();
     }
 }
